@@ -36,7 +36,8 @@
     "lib/javaValues.js",
     "java-bridge/target/jmx-bridge.jar",
     "README.md",
-    "LICENSE"
+    "LICENSE",
+    "llms.txt"
   ],
   "devDependencies": {}
 }

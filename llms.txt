@@ -1,0 +1,31 @@
+# node24-jmx25
+
+> Node.js JMX client that bridges to a Java sidecar; targets Node.js 24+ and JDK 25.
+
+Node.js library for reading and managing Java applications through JMX (Java Management Extensions). It spawns a packaged Java sidecar process and exchanges newline-delimited JSON over the child process's stdio. The public API is Promise-based; a legacy callback form is kept for backward compatibility. Features include per-request timeout, drain-aware write queue, stderr fail-fast guard, JMX notification subscriptions, and typed-key Map decoding. Credentials never leave the local pipe and are redacted from debug logs.
+
+## Requirements
+- Node.js 24 or later
+- Java 25 or later at runtime
+- Maven and JDK 25 to build the Java sidecar from a source checkout
+
+## Core
+- [README](https://github.com/Insider515/node24-jmx25/blob/main/README.md): usage, API reference, value decoding, notifications, reference benchmark
+- [LICENSE](https://github.com/Insider515/node24-jmx25/blob/main/LICENSE): MIT
+
+## API surface
+- `createClient(options)` returns an EventEmitter-based `Client`
+- Promise + optional callback: `getAttribute`, `getAttributes`, `getDefaultDomain`, `getDomains`, `getMBeanCount`, `listMBeans`, `invoke`, `setAttribute`
+- Notifications: `addNotificationListener(mbean)`, `removeNotificationListener(subscriptionId)`
+- Events: `connect`, `disconnect`, `error`, `notification`
+- Options: `host`, `port`, `service`, `protocol`, `urlPath`, `username`, `password`, `classpath`, `requestTimeoutMs`, `stderrFailFastBytes`, `debug`
+
+## Source
+- [lib/client.js](https://github.com/Insider515/node24-jmx25/blob/main/lib/client.js): Node.js client, protocol framing, pending-request lifecycle
+- [lib/javaValues.js](https://github.com/Insider515/node24-jmx25/blob/main/lib/javaValues.js): wire-type decoders and Java-compatible value wrappers
+- [java-bridge/src/main/java/com/insider515/jmx/JmxBridge.java](https://github.com/Insider515/node24-jmx25/blob/main/java-bridge/src/main/java/com/insider515/jmx/JmxBridge.java): Java sidecar entry point and JSON-RPC dispatcher
+
+## Optional
+- [TESTING.md](https://github.com/Insider515/node24-jmx25/blob/main/TESTING.md): how to run tests from source
+- [CONTRIBUTING.md](https://github.com/Insider515/node24-jmx25/blob/main/CONTRIBUTING.md): contribution workflow
+- [test/](https://github.com/Insider515/node24-jmx25/tree/main/test): unit and integration tests
