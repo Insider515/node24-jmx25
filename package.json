@@ -1,0 +1,42 @@
+{
+  "name": "node24-jmx25",
+  "version": "0.8.1",
+  "description": "Node.js JMX client that bridges to a Java sidecar; targets Node.js 24+ and JDK 25.",
+  "homepage": "https://github.com/Insider515/node24-jmx25",
+  "bugs": "https://github.com/Insider515/node24-jmx25/issues",
+  "main": "index.js",
+  "scripts": {
+    "build:bridge": "mvn -f java-bridge/pom.xml clean package",
+    "prepack": "npm run build:bridge",
+    "test": "npm run build:bridge && node --test test/*.test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Insider515/node24-jmx25.git"
+  },
+  "keywords": [
+    "jmx",
+    "java",
+    "jvm",
+    "bridge"
+  ],
+  "author": {
+    "name": "Mykhailo Kravtsov",
+    "email": "m.khravtsov@gmail.com",
+    "url": "https://github.com/Insider515"
+  },
+  "license": "MIT",
+  "readmeFilename": "README.md",
+  "engines": {
+    "node": ">=24"
+  },
+  "files": [
+    "index.js",
+    "lib/client.js",
+    "lib/javaValues.js",
+    "java-bridge/target/jmx-bridge.jar",
+    "README.md",
+    "LICENSE"
+  ],
+  "devDependencies": {}
+}

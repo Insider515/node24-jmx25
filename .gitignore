@@ -1,0 +1,9 @@
+node_modules/
+java-bridge/target/
+coverage/
+*.log
+.env
+.env.*
+*.pem
+*.key
+**/certs/
