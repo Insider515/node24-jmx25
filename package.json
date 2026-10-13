@@ -1,6 +1,6 @@
 {
   "name": "node24-jmx25",
-  "version": "0.8.1",
+  "version": "1.0.0",
   "description": "Node.js JMX client that bridges to a Java sidecar; targets Node.js 24+ and JDK 25.",
   "homepage": "https://github.com/Insider515/node24-jmx25",
   "bugs": "https://github.com/Insider515/node24-jmx25/issues",
