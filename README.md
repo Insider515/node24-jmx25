@@ -2,6 +2,15 @@
 
 Node.js client for reading and managing Java applications through JMX, targeting Node.js 24+ and the Java 25 toolchain. The package runs a small Java sidecar and exchanges newline-delimited JSON messages with it over the child process's standard input and output.
 
+## When to use this package instead of Jolokia
+
+Both tools let Node.js read and manage a JVM through JMX, but they attach to the target from opposite sides.
+
+- `node24-jmx25` runs on the Node.js host and speaks the standard JMX remote protocol (JSR-160, RMI by default) through a Java sidecar. The target JVM needs nothing beyond an enabled JMX remote connector; no code is deployed into it. The Node.js host needs Java 25 or later.
+- [Jolokia](https://jolokia.org/) is "a JMX-HTTP bridge giving an alternative to JSR-160 connectors" and follows "an agent based approach": its agent is deployed inside the target JVM as a WAR, OSGi bundle, or JVM agent and answers JSON over HTTP. The Node.js host then needs only an HTTP client and no JVM. Jolokia adds "bulk requests and fine grained security policies" on top of plain JMX.
+
+Pick `node24-jmx25` when you cannot or do not want to change the target deployment and a JMX remote port is already exposed. Pick Jolokia when you control the target deployment and can add its agent, when installing a JDK next to Node.js is not an option, or when HTTP is the only transport available between the two hosts.
+
 ## Requirements
 
 - Node.js 24 LTS or later.
@@ -129,6 +138,19 @@ For comparison, the same harness invoked directly on the host (no containerizati
 ## Debug logging
 
 Set the environment variable `DEBUG=node24-jmx25` or pass `debug: true` to `createClient` to log each JSON-RPC request and response to `stderr`. For custom routing supply `debug: (label, payload) => void`.
+
+## Sidecar stdout and stderr
+
+The sidecar's standard output is reserved for the protocol: one JSON object per line and nothing else. Any other text on that stream makes the client reject every pending request with `Invalid JSON received from JMX bridge`, kill the sidecar, and emit the `error` event.
+
+To keep the stream clean, the sidecar redirects `System.out` to `System.err` before it writes its first protocol line (`System.setOut(System.err)` in `JmxBridge.main`). Java code that prints or logs through `System.out`, including console appenders that resolve `System.out` at runtime, therefore ends up on stderr. If you add application classes through the `classpath` option, point their logging to stderr or to a file all the same.
+
+The redirect cannot catch output that bypasses `System.out` and is written to file descriptor 1 directly:
+
+- JVM unified logging such as `-Xlog:gc` or `-verbose:gc`. The sidecar inherits the environment of the Node.js process, so these flags reach it through `JAVA_TOOL_OPTIONS`, `JDK_JAVA_OPTIONS`, or `_JAVA_OPTIONS`. Route such logging to stderr explicitly, for example `-Xlog:gc:stderr`.
+- Code that writes to `java.io.FileDescriptor.out` directly.
+
+Stderr is safe for diagnostics but not unbounded: the client keeps the last 8 KiB and appends it to the error raised when the sidecar exits unexpectedly, and it terminates the sidecar once the cumulative stderr volume exceeds `stderrFailFastBytes` (1 MiB by default). Raise or disable that option if the sidecar is expected to log heavily.
 
 ## Security
 
